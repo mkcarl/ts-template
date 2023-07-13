@@ -8,14 +8,19 @@ const logger = (label: string) =>
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.json(),
-      winston.format.colorize({ level: true }),
-      winston.format.label({ label }),
-      winston.format.printf(({ level, message, label, timestamp }) => {
-        return `${timestamp} [${label}] ${level}: ${message}`;
-      })
+      winston.format.label({ label })
     ),
+    defaultMeta: { projectName: process.env.PROJECT_NAME },
     transports: [
-      new winston.transports.Console({ level: process.env.LOG_LEVEL })
+      new winston.transports.Console({
+        level: process.env.LOG_LEVEL,
+        format: winston.format.combine(
+          winston.format.colorize({ level: true }),
+          winston.format.printf(({ level, message, label, timestamp }) => {
+            return `${timestamp} [${label}] ${level}: ${message}`;
+          })
+        )
+      })
     ]
   });
 
