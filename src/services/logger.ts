@@ -1,7 +1,7 @@
 import winston from 'winston';
 import 'winston-mongodb';
-import dotenv from 'dotenv';
-dotenv.config();
+import {config} from '../config'
+
 
 const logger = (label: string) =>
   winston.createLogger({
@@ -11,10 +11,10 @@ const logger = (label: string) =>
       winston.format.json(),
       winston.format.label({ label })
     ),
-    defaultMeta: { projectName: process.env.PROJECT_NAME },
+    defaultMeta: { projectName: config.PROJECT_NAME },
     transports: [
       new winston.transports.Console({
-        level: process.env.LOG_LEVEL,
+        level: config.LOG_LEVEL,
         format: winston.format.combine(
           winston.format.colorize({ level: true }),
           winston.format.printf(({ level, message, label, timestamp }) => {
@@ -23,13 +23,16 @@ const logger = (label: string) =>
         )
       }),
         new winston.transports.MongoDB({
-            db: process.env.MONGODB_URI as string,
-            collection: process.env.PROJECT_NAME,
+            db: config.MONGODB_URI,
+            collection: config.PROJECT_NAME,
             level: 'silly',
             options: {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
-            }
+            },
+            format: winston.format.combine(
+                winston.format.metadata()
+            )
         })
     ]
   });
