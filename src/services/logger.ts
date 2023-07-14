@@ -1,4 +1,5 @@
 import winston from 'winston';
+import 'winston-mongodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -20,7 +21,16 @@ const logger = (label: string) =>
             return `${timestamp} [${label}] ${level}: ${message}`;
           })
         )
-      })
+      }),
+        new winston.transports.MongoDB({
+            db: process.env.MONGODB_URI as string,
+            collection: process.env.PROJECT_NAME,
+            level: 'silly',
+            options: {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            }
+        })
     ]
   });
 
